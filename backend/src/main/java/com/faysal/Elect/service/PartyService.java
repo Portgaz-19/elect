@@ -40,6 +40,12 @@ public class PartyService {
         if (userRepository.existsByEmail(request.email())) {
             throw new DuplicateResourceException("Email already in use");
         }
+        if (partyRepository.existsByAcronym(request.acronym())) {
+            throw new DuplicateResourceException("Party acronym already registered");
+        }
+        if (partyRepository.existsByName(request.name())) {
+            throw new DuplicateResourceException("Party name already registered");
+        }
 
         User user = userRepository.save(User.builder()
                 .email(request.email())

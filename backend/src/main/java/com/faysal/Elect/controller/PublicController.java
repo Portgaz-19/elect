@@ -1,6 +1,7 @@
 package com.faysal.Elect.controller;
 
 import com.faysal.Elect.entity.Candidate;
+import com.faysal.Elect.entity.Constituency;
 import com.faysal.Elect.entity.Election;
 import com.faysal.Elect.entity.Party;
 import com.faysal.Elect.service.PublicService;
@@ -53,5 +54,10 @@ public class PublicController {
     @GetMapping("/api/elections")
     public ResponseEntity<List<Election>> allElections() {
         return ResponseEntity.ok(publicService.getAllElections());
+    }
+
+    @GetMapping("/api/constituencies")
+    public ResponseEntity<List<Constituency>> allConstituencies() {
+        return ResponseEntity.ok(publicService.getAllConstituencies());
     }
 }

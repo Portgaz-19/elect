@@ -46,6 +46,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body(status, ex.getMessage(), null));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(body(HttpStatus.BAD_REQUEST, ex.getMessage(), null));
+    }
+
     private Map<String, Object> body(HttpStatus status, String message, Object detail) {
         Map<String, Object> map = new HashMap<>();
         map.put("timestamp", Instant.now().toString());

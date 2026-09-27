@@ -2,12 +2,15 @@ package com.faysal.Elect.controller;
 
 import com.faysal.Elect.dto.ConstituencyRequest;
 import com.faysal.Elect.dto.CreateElectionRequest;
+import com.faysal.Elect.entity.AuditLog;
 import com.faysal.Elect.entity.Constituency;
 import com.faysal.Elect.entity.Election;
+import com.faysal.Elect.entity.User;
 import com.faysal.Elect.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,8 +40,8 @@ public class AdminElectionController {
     }
 
     @PatchMapping("/elections/{id}/status")
-    public ResponseEntity<Election> setStatus(@PathVariable UUID id, @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(adminService.setElectionStatus(id, body.get("status")));
+    public ResponseEntity<Election> setStatus(@AuthenticationPrincipal User admin, @PathVariable UUID id, @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(adminService.setElectionStatus(admin.getEmail(), id, body.get("status")));
     }
 
     @GetMapping("/elections/{id}/turnout")
@@ -59,5 +62,10 @@ public class AdminElectionController {
     @GetMapping("/constituencies")
     public ResponseEntity<List<Constituency>> allConstituencies() {
         return ResponseEntity.ok(adminService.getAllConstituencies());
+    }
+
+    @GetMapping("/audit-log")
+    public ResponseEntity<List<AuditLog>> auditLog() {
+        return ResponseEntity.ok(adminService.getAuditLog());
     }
 }

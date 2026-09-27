@@ -38,6 +38,7 @@ public class AdminService {
     private final CandidateRepository candidateRepository;
     private final VoterRepository voterRepository;
     private final VoteRepository voteRepository;
+    private final AuditLogRepository auditLogRepository;
 
     // ---- Constituencies ----
     @Transactional
@@ -65,6 +66,16 @@ public class AdminService {
             throw new IllegalArgumentException("endTime must be after startTime");
         }
 
+        // Two elections in the same constituency can't have overlapping voting
+        // windows — a voter can't meaningfully be in two elections at once for
+        // the same seat. Overlap test: existing.start < new.end AND existing.end > new.start.
+        List<Election> existing = electionRepository.findByConstituencyId(constituency.getId());
+        boolean overlaps = existing.stream().anyMatch(e -> e.getStartTime().isBefore(request.endTime()) && e.getEndTime().isAfter(request.startTime()));
+
+        if (overlaps) {
+            throw new IllegalArgumentException("This election's time window overlaps with an existing election in the same constituency");
+        }
+
         Election election = Election.builder()
                 .name(request.name())
                 .type(Election.ElectionType.valueOf(request.type().toUpperCase()))
@@ -76,30 +87,49 @@ public class AdminService {
         return electionRepository.save(election);
     }
 
+    private void logAction(String actorEmail, String action, String targetId, String details) {
+        auditLogRepository.save(AuditLog.builder()
+                .actorEmail(actorEmail)
+                .action(action)
+                .targetId(targetId)
+                .details(details)
+                .build());
+    }
+
+    public List<AuditLog> getAuditLog() {
+        return auditLogRepository.findAllByOrderByTimestampDesc();
+    }
+
     @Transactional
-    public Election setElectionStatus(UUID electionId, String status) {
+    public Election setElectionStatus(String actorEmail, UUID electionId, String status) {
         Election election = electionRepository.findById(electionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Election not found"));
         election.setStatus(Election.ElectionStatus.valueOf(status.toUpperCase()));
-        return electionRepository.save(election);
+        Election saved = electionRepository.save(election);
+        logAction(actorEmail, "ELECTION_STATUS_CHANGED", electionId.toString(), status.toUpperCase());
+        return saved;
     }
 
     // ---- Party / candidate approval ----
     @Transactional
-    public Party setPartyStatus(UUID partyId, Party.PartyStatus status) {
+    public Party setPartyStatus(String actorEmail, UUID partyId, Party.PartyStatus status) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Party not found"));
 
         party.setStatus(status);
-        return partyRepository.save(party);
+        Party saved =  partyRepository.save(party);
+        logAction(actorEmail, "PARTY_" + status, partyId.toString(), party.getName());
+        return saved;
     }
 
     @Transactional
-    public Candidate setCandidateStatus(UUID candidateId, Candidate.CandidateStatus status) {
+    public Candidate setCandidateStatus(String actorEmail, UUID candidateId, Candidate.CandidateStatus status) {
         Candidate candidate = candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Candidate not found"));
         candidate.setStatus(status);
-        return candidateRepository.save(candidate);
+        Candidate saved = candidateRepository.save(candidate);
+        logAction(actorEmail, "CANDIDATE_" + status, candidateId.toString(), candidate.getFullName());
+        return saved;
     }
 
     // Expected CSV header: voterRegNumber,fullName,dateOfBirth,constituencyId

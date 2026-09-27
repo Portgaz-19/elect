@@ -1,10 +1,12 @@
 package com.faysal.Elect.service;
 
 import com.faysal.Elect.entity.Candidate;
+import com.faysal.Elect.entity.Constituency;
 import com.faysal.Elect.entity.Election;
 import com.faysal.Elect.entity.Party;
 import com.faysal.Elect.exception.ResourceNotFoundException;
 import com.faysal.Elect.repository.CandidateRepository;
+import com.faysal.Elect.repository.ConstituencyRepository;
 import com.faysal.Elect.repository.ElectionRepository;
 import com.faysal.Elect.repository.PartyRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class PublicService {
     private final ElectionRepository electionRepository;
     private final CandidateRepository candidateRepository;
     private final PartyRepository partyRepository;
+    private final ConstituencyRepository constituencyRepository;
 
     public List<Election> getActiveElections() {
         Instant now = Instant.now();
@@ -55,5 +58,9 @@ public class PublicService {
 
     public List<Election> getAllElections() {
         return electionRepository.findAll();
+    }
+
+    public List<Constituency> getAllConstituencies() {
+        return constituencyRepository.findAll();
     }
 }

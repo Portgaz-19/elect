@@ -1,9 +1,6 @@
 package com.faysal.Elect.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
@@ -13,5 +10,5 @@ public record VoterRegisterRequest(
         @NotBlank String voterRegNumber,
         @NotNull @Past LocalDate dateOfBirth,
         @NotBlank @Email String email,
-        @NotBlank String password
+        @NotBlank @Size(min = 8, message = "Password must be at least 8 characters") String password
         ) {}

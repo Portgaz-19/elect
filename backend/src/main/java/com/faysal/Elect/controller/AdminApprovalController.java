@@ -2,9 +2,11 @@ package com.faysal.Elect.controller;
 
 import com.faysal.Elect.entity.Candidate;
 import com.faysal.Elect.entity.Party;
+import com.faysal.Elect.entity.User;
 import com.faysal.Elect.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,23 +28,23 @@ public class AdminApprovalController {
     private final AdminService adminService;
 
     @PatchMapping("/parties/{id}/approve")
-    public ResponseEntity<Party> approveParty(@PathVariable UUID id) {
-        return ResponseEntity.ok(adminService.setPartyStatus(id, Party.PartyStatus.APPROVED));
+    public ResponseEntity<Party> approveParty(@AuthenticationPrincipal User admin, @PathVariable UUID id) {
+        return ResponseEntity.ok(adminService.setPartyStatus(admin.getEmail(), id, Party.PartyStatus.APPROVED));
     }
 
     @PatchMapping("/parties/{id}/reject")
-    public ResponseEntity<Party> rejectParty(@PathVariable UUID id) {
-        return ResponseEntity.ok(adminService.setPartyStatus(id, Party.PartyStatus.REJECTED));
+    public ResponseEntity<Party> rejectParty(@AuthenticationPrincipal User admin, @PathVariable UUID id) {
+        return ResponseEntity.ok(adminService.setPartyStatus(admin.getEmail(), id, Party.PartyStatus.REJECTED));
     }
 
     @PatchMapping("/candidates/{id}/approve")
-    public ResponseEntity<Candidate> approveCandidate(@PathVariable UUID id) {
-        return ResponseEntity.ok(adminService.setCandidateStatus(id, Candidate.CandidateStatus.APPROVED));
+    public ResponseEntity<Candidate> approveCandidate(@AuthenticationPrincipal User admin, @PathVariable UUID id) {
+        return ResponseEntity.ok(adminService.setCandidateStatus(admin.getEmail(),id, Candidate.CandidateStatus.APPROVED));
     }
 
     @PatchMapping("/candidates/{id}/reject")
-    public ResponseEntity<Candidate> rejectCandidate(@PathVariable UUID id) {
-        return ResponseEntity.ok(adminService.setCandidateStatus(id, Candidate.CandidateStatus.REJECTED));
+    public ResponseEntity<Candidate> rejectCandidate(@AuthenticationPrincipal User admin, @PathVariable UUID id) {
+        return ResponseEntity.ok(adminService.setCandidateStatus(admin.getEmail(),id, Candidate.CandidateStatus.REJECTED));
     }
 
     @PostMapping(value = "/voter-roll/upload", consumes = "multipart/form-data")

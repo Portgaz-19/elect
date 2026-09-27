@@ -14,4 +14,8 @@ public interface PartyRepository extends JpaRepository<Party, UUID> {
     Optional<Party> findByUserId(UUID userId);
 
     List<Party> findByStatus(Party.PartyStatus status);
+
+    boolean existsByAcronym(String acronym);
+
+    boolean existsByName(String name);
 }

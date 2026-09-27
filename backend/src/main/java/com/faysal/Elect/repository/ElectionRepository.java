@@ -16,4 +16,6 @@ public interface ElectionRepository extends JpaRepository<Election, UUID> {
     // (two different fields compared against the same "now" value), so the two
     // params are named to match — Spring still generates it from the name.
     List<Election> findByStartTimeBeforeAndEndTimeAfter(Instant now1, Instant now2);
+
+    List<Election> findByConstituencyId(UUID constituencyId);
 }

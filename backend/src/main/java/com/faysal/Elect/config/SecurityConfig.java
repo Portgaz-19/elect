@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/party/register").permitAll()
                         .requestMatchers("/api/election", "/api/elections/active", "/api/elections/*", "/api/elections/*/candidates").permitAll()
+                        .requestMatchers("/api/constituencies").permitAll()
                         .requestMatchers("/api/candidates/**", "/api/parties").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/party/**").hasRole("PARTY")
