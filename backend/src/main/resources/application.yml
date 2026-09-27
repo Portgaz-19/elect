@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: elect
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/voting_system}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      # validate = Hibernate checks entities against the actual schema on
+      # startup and fails loudly on any mismatch. Flyway owns schema
+      # changes; Hibernate never auto-creates or alters tables here.
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-long-random-secret-min-256-bits-for-dev-only}
+    expiration-ms: 3600000
